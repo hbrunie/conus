@@ -41,9 +41,15 @@ int main(int argc, char ** argv) {
     if(argc>2)
         tol = (double) atof(argv[2]);
     conusInit();
+#ifdef TESTINT
+    int64_t* randCPU = generateRandomsCPU<int64_t>(N);
+    int64_t* randGPU = generateRandomsGPUi(N);
+    nbDiffs = checkRandomNumbersEquivalence<int64_t>(randCPU,randGPU,tol, N);
+#else
     double* randCPU = generateRandomsCPU<double>(N);
     double* randGPU = generateRandomsGPUd(N);
     nbDiffs = checkRandomNumbersEquivalence<double>(randCPU,randGPU,tol, N);
+#endif
     //deleteRandomsCPU(randCPU);
     //deleteRandomsCPU(randGPU);
     //conusFinalize();

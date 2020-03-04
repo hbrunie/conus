@@ -32,6 +32,9 @@
  */
 
 #include <sstream>
+#include <memory>
+#include <random> // Raplacement for boost:: RNGs in GalSim
+
 
 namespace galsim {
 
@@ -205,7 +208,7 @@ namespace galsim {
 
    protected:
         struct BaseDeviateImpl;
-        shared_ptr<BaseDeviateImpl> _impl;
+        std::shared_ptr<BaseDeviateImpl> _impl;
 
         /// Helper to make the repr with or without the (lengthy!) seed item.
         virtual std::string make_repr(bool incl_seed);
@@ -273,7 +276,7 @@ namespace galsim {
 
     private:
         struct UniformDeviateImpl;
-        shared_ptr<UniformDeviateImpl> _devimpl;
+        std::shared_ptr<UniformDeviateImpl> _devimpl;
     };
 
 }  // namespace galsim
