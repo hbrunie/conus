@@ -1,18 +1,25 @@
-all: test
+all: test_random.ex test_conus.ex
+
+CXXSTD:=-std=c++11
+NVCXX=nvcc
 CXX=g++
-INCLUDE=-I include -g -I.
 
-test: simpleTest.cpp conus_gpu.o
-	nvcc -o $@ $^ $(INCLUDE)
+INCLUDE=-I include -I.
 
-conus_cpu.o: conus_cpu.cpp
-	nvcc -o $@ -c $^ $(INCLUDE)
+%.o: %.cpp
+	$(CXX) $(CXXSTD) -c $(INCLUDE) -o $@ $<
 
-conus_gpu.o: conus_gpu.cu
-	nvcc -o $@ -c $^ $(INCLUDE) -arch=compute_70
+%.o: %.cu
+	$(NVCXX) $(CXXSTD) -c $(INCLUDE) -o $@ $<
+
+test_random.ex: Random.o test_random.o
+	$(CXX) $(CXXSTD) -o $@ $^
+
+test_conus.ex: simpleTest.o conus_gpu.o
+	$(NVCXX) $(CXXSTD) -o $@ $^
 
 clean:
 	rm -f *.o
 
 cleanall: clean
-	rm -f test
+	rm -f *.ex
