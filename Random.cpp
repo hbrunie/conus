@@ -33,9 +33,9 @@ namespace galsim {
     {
         // Note that this class could be templated with the type of Boost.Random generator that
         // you want to use instead of mt19937
-        typedef boost::mt19937 rng_type;
+        typedef std::mt19937 rng_type;
         BaseDeviateImpl() : _rng(new rng_type) {}
-        shared_ptr<rng_type> _rng;
+        std::shared_ptr<rng_type> _rng;
     };
 
     BaseDeviate::BaseDeviate(long lseed) :
@@ -123,7 +123,7 @@ namespace galsim {
             // the initial seed of each rng), it can't hurt, and it makes Barney and Mike somewhat
             // less disquieted.  :)
 
-            boost::random::mt11213b alt_rng(lseed);
+            std::ranlux48 alt_rng(lseed);
             alt_rng.discard(2);
             _impl->_rng->seed(alt_rng());
         }
@@ -198,7 +198,7 @@ namespace galsim {
     struct UniformDeviate::UniformDeviateImpl
     {
         UniformDeviateImpl() : _urd(0., 1.) {}
-        boost::random::uniform_real_distribution<> _urd;
+        std::uniform_real_distribution<> _urd;
     };
 
     UniformDeviate::UniformDeviate(long lseed) :
