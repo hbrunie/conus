@@ -54,7 +54,7 @@ int main(int argc, char ** argv) {
     //deleteRandomsCPU(randGPU);
     //conusFinalize();
 
-    std::cout << "nbDiffs" << nbDiffs
+    std::cout << "nbDiffs= " << nbDiffs
               << std::endl;
 
     return 0;
