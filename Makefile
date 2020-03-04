@@ -1,11 +1,12 @@
 
 CXXSTD:=-std=c++11
 
-% : %.cpp
-	$(CXX) $(CXXSTD) -o $@
+%.o: %.cpp
+	$(CXX) $(CXXSTD) -c -I. -o $@ $<
 
+test_random.ex: Random.o test_random.o
+	$(CXX) $(CXXSTD) -o $@ $^
 
-all: Random.o
 
 clean:
 	rm *.o
