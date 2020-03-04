@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Random.h>
+#include "Random.h"
 
 
 using namespace galsim;
@@ -7,7 +7,6 @@ using namespace galsim;
 int main(int argc, char ** argv) {
 
     long seed = 0;
-    UniformDeviate ud = UniformDeviate(seed);
-
+    UniformDeviate ud(seed);
     std::cout << "Here is a random number: " << ud() << std::endl;
 }
