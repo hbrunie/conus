@@ -17,8 +17,8 @@ void conusFinalize(){
 
 
 
-unsigned getUseed(){
-    unsigned seed = 0;//example_seed_u32(EXAMPLE_SEED9_U32);
+unsigned long getULseed(){
+    unsigned long seed = 0xdeadbeef12345678;
     return 0;
 }
 
