@@ -18,7 +18,7 @@ void uniform_ct_cpu(
     assert(n%4 == 0);
     int ndiv4 = n /4;
     for (unsigned n_rng = 0; n_rng < ndiv4; n_rng++) {
-        typedef Philox4x64 G;
+        typedef Threefry4x64 G;
         G rng;
         G::key_type k = {{n_rng, ulseed}};
         G::ctr_type c = {{}};

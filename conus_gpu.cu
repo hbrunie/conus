@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Random123/philox.h>
+#include <Random123/threefry.h>
 #include <Random123/ReinterpretCtr.hpp>
 
 #include "example_seeds.h"
@@ -17,7 +17,7 @@ uniform_ct_gpu(unsigned long ulseed,
                T* arr) {
 
     unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
-    typedef Philox4x64 G;
+    typedef Threefry4x64 G;
     G rng;
     G::key_type k = {{tid, ulseed}};
     G::ctr_type c = {{}};

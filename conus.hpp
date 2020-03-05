@@ -2,7 +2,7 @@
 #define __CONUS_HPP
 
 #include <climits>
-#include <Random123/philox.h>
+#include <Random123/threefry.h>
 #include <Random123/ReinterpretCtr.hpp>
 
 
