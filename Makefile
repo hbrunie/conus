@@ -13,10 +13,10 @@ INCLUDE=-I include -I.
 %.o: %.cu
 	$(NVCXX) $(CXXFLAGS) -c $(INCLUDE) -o $@ $<
 
-test_random.ex: Random.o conus_random.o test_random.o conus_gpu.o
+test_random.ex: Random.o conus.o conus_random.o test_random.o conus_gpu.o
 	$(NVCXX) $(CXXFLAGS) -o $@ $^
 
-test_conus.ex: simpleTest.o conus_gpu.o
+test_conus.ex: conus.o simpleTest.o conus_gpu.o
 	$(NVCXX) $(CXXFLAGS) -o $@ $^
 
 clean:
