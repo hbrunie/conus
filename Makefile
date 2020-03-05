@@ -4,19 +4,20 @@ CXXSTD:=-std=c++11
 NVCXX=nvcc
 CXX=g++
 
+CXXFLAGS=$(CXXSTD) -g
 INCLUDE=-I include -I.
 
 %.o: %.cpp
-	$(CXX) $(CXXSTD) -c $(INCLUDE) -o $@ $<
+	$(CXX) $(CXXFLAGS) -c $(INCLUDE) -o $@ $<
 
 %.o: %.cu
-	$(NVCXX) $(CXXSTD) -c $(INCLUDE) -o $@ $<
+	$(NVCXX) $(CXXFLAGS) -c $(INCLUDE) -o $@ $<
 
-test_random.ex: Random.o test_random.o
-	$(CXX) $(CXXSTD) -o $@ $^
+test_random.ex: Random.o conus_random.o test_random.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 test_conus.ex: simpleTest.o conus_gpu.o
-	$(NVCXX) $(CXXSTD) -o $@ $^
+	$(NVCXX) $(CXXFLAGS) -o $@ $^
 
 clean:
 	rm -f *.o
