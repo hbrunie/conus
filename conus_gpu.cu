@@ -45,23 +45,22 @@ uniform_ct_gpu(unsigned useed,
 extern unsigned getUseed();
 
 template<typename T>
-T*
-__generateRandomsGPU(unsigned long N){
+T *
+__generateRandomsGPU_onD(unsigned long N) {
     assert(N%4 ==0);
     unsigned useed = getUseed();
-    T *randomNumbers_d, *randomNumbers_h;
-    randomNumbers_h = (T*) malloc(N*sizeof(T));
+    T * randomNumbers_d;
 
-    size_t rn_size = N* sizeof(T);
+    size_t rn_size = N * sizeof(T);
 
     CHECKCALL(cudaMalloc(& randomNumbers_d, rn_size));
 
     unsigned threads_per_block = THREADS_PER_BLOCK;
     assert(N%THREADS_PER_BLOCK == 0);
-    unsigned blocks_per_grid =  N / threads_per_block;
-    cerr << threads_per_block<<endl;
-    cerr << blocks_per_grid<<endl;
-    cerr << N<<endl;
+    unsigned blocks_per_grid   = N / threads_per_block;
+    cerr << threads_per_block << endl;
+    cerr << blocks_per_grid   << endl;
+    cerr << N                 << endl;
 
     if (std::is_same<T, int64_t>::value)
         cerr << "VALUE is int64_t "<<endl;
@@ -71,6 +70,18 @@ __generateRandomsGPU(unsigned long N){
     uniform_ct_gpu<<<blocks_per_grid, threads_per_block>>>(
         useed, randomNumbers_d);
 
+    return randomNumbers_d;
+}
+
+template<typename T>
+T *
+__generateRandomsGPU(unsigned long N) {
+
+    T * randomNumbers_d, * randomNumbers_h;
+
+    randomNumbers_h = (T *) malloc(N*sizeof(T));
+
+    randomNumbers_d = __generateRandomsGPU_onD<T>(N);
     CHECKCALL(cudaMemcpy(randomNumbers_h, randomNumbers_d,
                 N * sizeof(T),
                 cudaMemcpyDeviceToHost));
@@ -79,39 +90,55 @@ __generateRandomsGPU(unsigned long N){
     return randomNumbers_h;
 }
 
+
 void deleteRandomsGPU(double * arr){
     CHECKCALL(cudaFree(arr));
 }
 
-double*
+double *
 generateRandomsGPUd(unsigned long N){
     return __generateRandomsGPU<double>(N);
 }
 
-int64_t*
+int64_t *
 generateRandomsGPUi(unsigned long N){
-return __generateRandomsGPU<int64_t>(N);
+    return __generateRandomsGPU<int64_t>(N);
 }
 
 
-// #include "Random.h"
-// 
-// 
-// class ConusUniform : public galsim::BaseDeviate {
-// 
-//     public:
-// 
-//         ConusUniform(long lseed, int N);
-// 
-//         double generate1();
-// 
-//     private:
-//         int buf_len;
-//         int buf_ptr;
-// 
-//         std::unique_ptr<double> buf;
-// 
-//         void fill_buff();
-// };
+#include "Random.h"
 
 
+class ConusUniformGPU : public galsim::BaseDeviate {
+
+    public:
+
+        ConusUniformGPU(long lseed, int N):
+            galsim::BaseDeviate(lseed), buf_len(N), buf_ptr(N) {};
+// NOTE: initialize buf_ptr to N so that we're calling fill_buff on the first
+// time generate1() is called
+
+
+        double generate1() {
+            buf_ptr++;
+            if (buf_ptr < buf_len) return buf_d[buf_ptr];
+
+            cudaFree(buf_d);
+            fill_buff();
+
+            // Neet to try again after buffer has been filled. This definitely
+            // looks unsafe on device. TODO: fix
+            return generate1();
+        };
+
+    private:
+        int buf_len;
+        int buf_ptr;
+
+        // NOTE: random numbers are buffered on device!
+        double * buf_d;
+
+        void fill_buff(){
+            buf_d = __generateRandomsGPU_onD<double>(buf_len);
+        };
+};
