@@ -1,14 +1,13 @@
-#include <cmath>
-#include <iomanip>
 #include <iostream>
+
 
 #include "conus.hpp"
 #include "conus_random.hpp"
+#include "conus_gpu.h"
 
-// #include "Random.h"
 
+using namespace r123;
 
-using namespace galsim;
 
 int main(int argc, char ** argv) {
 
@@ -21,4 +20,9 @@ int main(int argc, char ** argv) {
     std::cout << "Here are some random numbers: " << std::endl;
     for (int i=0; i<100; i++)
         std::cout << ud() << std::endl;
+
+
+    ConusUniformGPU ud_host(seed, buff_size);
+    // cuda mallocs (and "plain" mallocs) all the internal arrays
+    ud_host.initialize();
 }

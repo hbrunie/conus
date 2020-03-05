@@ -1,3 +1,5 @@
+#include "conus_gpu.h"
+
 #include <iostream>
 #include <Random123/threefry.h>
 #include <Random123/ReinterpretCtr.hpp>
@@ -5,11 +7,10 @@
 #include "example_seeds.h"
 #include "util_cuda.h"
 
+
 using namespace r123;
 using namespace std;
 
-typedef long unsigned uint64_t;
-#define THREADS_PER_BLOCK 32
 
 template<typename T>
 __global__ void
@@ -106,96 +107,72 @@ generateRandomsGPUi(unsigned long N){
 }
 
 
-#include "Random.h"
 
+// TODO: will need to figure out what to do with the generate1 VF
+// TODO: this will only work for buf_ptr < 4
+__device__ double ConusUniformGPU::get() {
+    unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-class ConusUniformGPU : public galsim::BaseDeviate {
+    double elt = buf_d[tid+4*buf_ptr[tid]];
+    buf_ptr[tid] ++;
 
-    public:
+    return elt;
+}
 
-         __host__ __device__ ConusUniformGPU(long lseed, int N):
-            galsim::BaseDeviate(lseed), ulseed(lseed), _N(N), _p(0) {}
+__device__ void ConusUniformGPU::fill_buf_d() {
+    unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
+    buf_ptr[tid] = 0;
 
+    // uniform_ct_gpu<double>(ulseed, buf_d);
 
-        // TODO: will need to figure out what to do with the generate1 VF
-        // TODO: this will only work for buf_ptr < 4
-        __device__ double get() {
-            unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
+    typedef Threefry4x64 G;
+    G rng;
+    G::key_type k = {{tid, ulseed}};
+    G::ctr_type c = {{}};
 
-            double elt = buf_d[tid+4*buf_ptr[tid]];
-            buf_ptr[tid] ++;
+    union {
+        G::ctr_type c;
+        long4 i;
+    }u;
+    c.incr();
+    u.c = rng(c, k);
 
-            return elt;
-        };
+    buf_d[4*tid]   = ((double)((uint64_t)u.i.x))/((double)ULONG_MAX);
+    buf_d[4*tid+1] = ((double)((uint64_t)u.i.y))/((double)ULONG_MAX);
+    buf_d[4*tid+2] = ((double)((uint64_t)u.i.z))/((double)ULONG_MAX);
+    buf_d[4*tid+3] = ((double)((uint64_t)u.i.w))/((double)ULONG_MAX);
+}
 
-        __host__ __device__ void fill_buf_d() {
-            unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
-            buf_ptr[tid] = 0;
+__host__ void ConusUniformGPU::initialize() {
+    // TODO: this shouldn't go into the constructor, but we should add
+    // a call-guard to prevent repreated calls
+    size_t rn_size  = 4*_N * sizeof(double);
+    size_t ptr_size = _N * sizeof(int);
 
-            // uniform_ct_gpu<double>(ulseed, buf_d);
+    CHECKCALL(cudaMalloc(& buf_d, rn_size));
+    CHECKCALL(cudaMalloc(& buf_ptr, ptr_size));
 
-            typedef Threefry4x64 G;
-            G rng;
-            G::key_type k = {{tid, ulseed}};
-            G::ctr_type c = {{}};
-
-            union {
-                G::ctr_type c;
-                long4 i;
-            }u;
-            c.incr();
-            u.c = rng(c, k);
-
-            buf_d[4*tid]   = ((double)((uint64_t)u.i.x))/((double)ULONG_MAX);
-            buf_d[4*tid+1] = ((double)((uint64_t)u.i.y))/((double)ULONG_MAX);
-            buf_d[4*tid+2] = ((double)((uint64_t)u.i.z))/((double)ULONG_MAX);
-            buf_d[4*tid+3] = ((double)((uint64_t)u.i.w))/((double)ULONG_MAX);
-        };
-
-
-        __host__ void initialize() {
-            // TODO: this shouldn't go into the constructor, but we should add
-            // a call-guard to prevent repreated calls
-            size_t rn_size  = 4*_N * sizeof(double);
-            size_t ptr_size = _N * sizeof(int);
-
-            CHECKCALL(cudaMalloc(& buf_d, rn_size));
-            CHECKCALL(cudaMalloc(& buf_ptr, ptr_size));
-
-            buf_h = (double * ) malloc(4*_N*sizeof(double));
-        };
-
-        // TODO: build destructor to safely free arrays
-
-        __host__ void copyToHost() {
-            // TODO: add checks
-            cudaMemcpy(buf_d, buf_h, 4*_N*sizeof(double),
-                       cudaMemcpyDeviceToHost);
-
-          _p = -1;
-        }
-
-        __host__ __device__ int N() { return _N;}
-
-        double generate1() {
-            _p++;
-            if (_p < 4*_N) return buf_h[_p];
-
-            // TODO: figure out what should happen here?
-            return -1.;
-        }
-
-    private:
-        int _N;
-        int _p;
-        int * buf_ptr;
-        unsigned long ulseed;
-
-        // NOTE: random numbers are buffered on device!
-        double * buf_d;
-        double * buf_h;
+    buf_h = (double * ) malloc(4*_N*sizeof(double));
 };
 
+// TODO: build destructor to safely free arrays
+
+__host__ void ConusUniformGPU::copyToHost() {
+    // TODO: add checks
+    cudaMemcpy(buf_d, buf_h, 4*_N*sizeof(double),
+               cudaMemcpyDeviceToHost);
+
+  _p = -1;
+}
+
+// __host__ double ConusUniformGPU::generate1() {
+__host__ double ConusUniformGPU::operator()() {
+    _p++;
+    if (_p < 4*_N) return buf_h[_p];
+
+    // TODO: figure out what should happen here?
+    return -1.;
+}
 
 
 // Entry point
