@@ -51,7 +51,7 @@ T * generateRandomsCPU(unsigned long N){
     }else{
         for(unsigned i=0; i<N; i++){
             randomNumbers[i] =
-                ((T) ((uint64_t) randomNumbers[i])) / UINT_MAX;
+                ((T) ((uint64_t) randomNumbers[i])) / ULONG_MAX;
         }
     }
     return randomNumbers;

@@ -35,10 +35,10 @@ uniform_ct_gpu(unsigned useed,
         arr[4*tid+2] = u.i.z;
         arr[4*tid+3] = u.i.w;
     }else{
-        arr[4*tid]   = ((double)((uint64_t)u.i.x))/((double)UINT_MAX);
-        arr[4*tid+1] = ((double)((uint64_t)u.i.y))/((double)UINT_MAX);
-        arr[4*tid+2] = ((double)((uint64_t)u.i.z))/((double)UINT_MAX);
-        arr[4*tid+3] = ((double)((uint64_t)u.i.w))/((double)UINT_MAX);
+        arr[4*tid]   = ((double)((uint64_t)u.i.x))/((double)ULONG_MAX);
+        arr[4*tid+1] = ((double)((uint64_t)u.i.y))/((double)ULONG_MAX);
+        arr[4*tid+2] = ((double)((uint64_t)u.i.z))/((double)ULONG_MAX);
+        arr[4*tid+3] = ((double)((uint64_t)u.i.w))/((double)ULONG_MAX);
     }
 }
 
