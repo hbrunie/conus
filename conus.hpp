@@ -1,3 +1,11 @@
+#ifndef __CONUS_HPP
+#define __CONUS_HPP
+
+#include <climits>
+#include <Random123/philox.h>
+#include <Random123/ReinterpretCtr.hpp>
+
+
 typedef long int int64_t;
 // Generate N random numbers (double or single)
 // Either on GPU or CPU using random123 library
@@ -16,7 +24,13 @@ generateRandomsGPUd(unsigned long N);
 int64_t*
 generateRandomsGPUi(unsigned long N);
 
-#include "conus_cpu.cpp"
+void conusInit();
+void conusFinalize();
+unsigned getUseed();
+void deleteRandomsCPU(double * arr);
+
+
+#include "conus_impl.hpp"
 
 //void
 //conusInit();
@@ -27,3 +41,5 @@ generateRandomsGPUi(unsigned long N);
 //deleteRandomsCPU(double *);
 //void
 //deleteRandomsGPU(double *);
+
+#endif
