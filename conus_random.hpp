@@ -6,11 +6,11 @@
 #include "Random.h"
 
 
-class ConusUniform : public galsim::BaseDeviate {
+class ConusUniformCPU : public galsim::BaseDeviate {
 
     public:
 
-        ConusUniform(long lseed, int N);
+        ConusUniformCPU(long lseed, int N);
 
         double generate1();
 
