@@ -6,7 +6,7 @@
 #include <Random123/ReinterpretCtr.hpp>
 
 
-typedef long int int64_t;
+typedef long int64_t;
 // Generate N random numbers (double or single)
 // Either on GPU or CPU using random123 library
 // randomNumbers array is allocated on HOST
@@ -26,7 +26,7 @@ generateRandomsGPUi(unsigned long N);
 
 void conusInit();
 void conusFinalize();
-unsigned getUseed();
+unsigned long getULseed();
 void deleteRandomsCPU(double * arr);
 
 

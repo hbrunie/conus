@@ -13,18 +13,18 @@ typedef long unsigned uint64_t;
 
 template<typename T>
 __global__ void
-uniform_ct_gpu(unsigned useed,
+uniform_ct_gpu(unsigned long ulseed,
                T* arr) {
 
     unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
     typedef Philox4x64 G;
     G rng;
-    G::key_type k = {{tid, useed}};
+    G::key_type k = {{tid, ulseed}};
     G::ctr_type c = {{}};
 
     union {
         G::ctr_type c;
-        int4 i;
+        long4 i;
     }u;
     c.incr();
     u.c = rng(c, k);
@@ -42,13 +42,13 @@ uniform_ct_gpu(unsigned useed,
     }
 }
 
-extern unsigned getUseed();
+extern unsigned long getULseed();
 
 template<typename T>
 T *
 __generateRandomsGPU_onD(unsigned long N) {
     assert(N%4 ==0);
-    unsigned useed = getUseed();
+    unsigned long ulseed = getULseed();
     T * randomNumbers_d;
 
     size_t rn_size = N * sizeof(T);
@@ -68,7 +68,7 @@ __generateRandomsGPU_onD(unsigned long N) {
         cerr << "VALUE is double"<<endl;
 
     uniform_ct_gpu<<<blocks_per_grid, threads_per_block>>>(
-        useed, randomNumbers_d);
+        ulseed, randomNumbers_d);
 
     return randomNumbers_d;
 }
