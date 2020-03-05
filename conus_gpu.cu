@@ -180,10 +180,10 @@ __global__ void generateOnDevice_kernel(ConusUniformGPU * ud_device) {
     ud_device->fill_buf_d();
 }
 
-void generateOnDevice(ConusUniformGPU * ud_device) {
+void generateOnDevice(ConusUniformGPU * ud_host, ConusUniformGPU * ud_device) {
     unsigned threads_per_block = THREADS_PER_BLOCK;
     // assert(ud.N()%THREADS_PER_BLOCK == 0);
-    unsigned blocks_per_grid   = ud_device->N() / threads_per_block;
+    unsigned blocks_per_grid   = ud_host->N() / threads_per_block;
 
     generateOnDevice_kernel<<<blocks_per_grid, threads_per_block>>>(ud_device);
 }

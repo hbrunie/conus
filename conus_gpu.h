@@ -63,7 +63,7 @@ class ConusUniformGPU {
 // Entry point
 __global__ void generateOnDevice_kernel(ConusUniformGPU * ud_device);
 
-void generateOnDevice(ConusUniformGPU * ud_device);
+void generateOnDevice(ConusUniformGPU * ud_host, ConusUniformGPU * ud_device);
 
 ConusUniformGPU * sendToDevice(ConusUniformGPU * ud_host);
 
