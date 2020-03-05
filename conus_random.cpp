@@ -4,11 +4,11 @@
 #include "conus.hpp"
 
 
-ConusUniform::ConusUniform(long lseed, int N):
+ConusUniformCPU::ConusUniformCPU(long lseed, int N):
     galsim::BaseDeviate(lseed), buf_len(N), buf_ptr(N) {}
 
 
-void ConusUniform::fill_buff() {
+void ConusUniformCPU::fill_buff() {
 
     buf = std::unique_ptr<double>(
                 generateRandomsCPU<double>(buf_len)
@@ -18,7 +18,7 @@ void ConusUniform::fill_buff() {
 }
 
 
-double ConusUniform::generate1() {
+double ConusUniformCPU::generate1() {
 
     buf_ptr++;
     if (buf_ptr < buf_len) return buf.get()[buf_ptr];
