@@ -25,12 +25,4 @@ int main(int argc, char ** argv) {
     generateOnDevice(& ud_host, ud_dev);
     //copies the buf_d to buf_h array on the host <-- my design should hold in theory
     ud_host.copyToHost();
-
-    std::cout << "Here are some random numbers: " << std::endl
-              << "I \t CPU \t\t GPU" << std::endl;
-    for (int i=0; i<100; i++)
-        std::cout << i 
-                  << "\t" << ud_cpu()
-                  << "\t" << ud_host()
-                  << std::endl;
 }
