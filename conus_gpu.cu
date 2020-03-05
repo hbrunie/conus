@@ -113,13 +113,15 @@ class ConusUniformGPU : public galsim::BaseDeviate {
 
     public:
 
-        ConusUniformGPU(long lseed, int N):
+        __device__ __host__ ConusUniformGPU(long lseed, int N):
             galsim::BaseDeviate(lseed), buf_len(N), buf_ptr(N) {};
 // NOTE: initialize buf_ptr to N so that we're calling fill_buff on the first
 // time generate1() is called
 
 
-        double generate1() {
+        // TODO: this is broken right now... will fix
+        // TODO: will need to figure out what to do with the generate1 VF
+        __device__ __host__ double get() {
             buf_ptr++;
             if (buf_ptr < buf_len) return buf_d[buf_ptr];
 
@@ -138,7 +140,7 @@ class ConusUniformGPU : public galsim::BaseDeviate {
         // NOTE: random numbers are buffered on device!
         double * buf_d;
 
-        void fill_buff(){
+        __device__ __host__ void fill_buff(){
             buf_d = __generateRandomsGPU_onD<double>(buf_len);
         };
 };
