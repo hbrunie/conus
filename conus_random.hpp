@@ -1,3 +1,8 @@
+#ifndef __CONUS_RANDOM_HPP
+#define __CONUS_RANDOM_HPP
+
+
+
 #include "Random.h"
 
 
@@ -17,3 +22,7 @@ class ConusUniform : public galsim::BaseDeviate {
 
         void fill_buff();
 };
+
+
+
+#endif
