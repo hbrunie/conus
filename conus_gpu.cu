@@ -122,7 +122,7 @@ class ConusUniformGPU : public galsim::BaseDeviate {
         __device__ double get() {
             unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-            double elt = buf_d[tid+buf_ptr[tid]];
+            double elt = buf_d[tid+4*buf_ptr[tid]];
             buf_ptr[tid] ++;
 
             return elt;
