@@ -113,34 +113,111 @@ class ConusUniformGPU : public galsim::BaseDeviate {
 
     public:
 
-        __device__ __host__ ConusUniformGPU(long lseed, int N):
-            galsim::BaseDeviate(lseed), buf_len(N), buf_ptr(N) {};
-// NOTE: initialize buf_ptr to N so that we're calling fill_buff on the first
-// time generate1() is called
+         __host__ __device__ ConusUniformGPU(long lseed, int N):
+            galsim::BaseDeviate(lseed), ulseed(lseed), _N(N), _p(0) {}
 
 
-        // TODO: this is broken right now... will fix
         // TODO: will need to figure out what to do with the generate1 VF
-        __device__ __host__ double get() {
-            buf_ptr++;
-            if (buf_ptr < buf_len) return buf_d[buf_ptr];
+        // TODO: this will only work for buf_ptr < 4
+        __device__ double get() {
+            unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-            cudaFree(buf_d);
-            fill_buff();
+            double elt = buf_d[tid+buf_ptr[tid]];
+            buf_ptr[tid] ++;
 
-            // Neet to try again after buffer has been filled. This definitely
-            // looks unsafe on device. TODO: fix
-            return generate1();
+            return elt;
         };
 
+        __host__ __device__ void fill_buf_d() {
+            unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
+            buf_ptr[tid] = 0;
+
+            // uniform_ct_gpu<double>(ulseed, buf_d);
+
+            typedef Threefry4x64 G;
+            G rng;
+            G::key_type k = {{tid, ulseed}};
+            G::ctr_type c = {{}};
+
+            union {
+                G::ctr_type c;
+                long4 i;
+            }u;
+            c.incr();
+            u.c = rng(c, k);
+
+            buf_d[4*tid]   = ((double)((uint64_t)u.i.x))/((double)ULONG_MAX);
+            buf_d[4*tid+1] = ((double)((uint64_t)u.i.y))/((double)ULONG_MAX);
+            buf_d[4*tid+2] = ((double)((uint64_t)u.i.z))/((double)ULONG_MAX);
+            buf_d[4*tid+3] = ((double)((uint64_t)u.i.w))/((double)ULONG_MAX);
+        };
+
+
+        __host__ void initialize() {
+            // TODO: this shouldn't go into the constructor, but we should add
+            // a call-guard to prevent repreated calls
+            size_t rn_size  = 4*_N * sizeof(double);
+            size_t ptr_size = _N * sizeof(int);
+
+            CHECKCALL(cudaMalloc(& buf_d, rn_size));
+            CHECKCALL(cudaMalloc(& buf_ptr, ptr_size));
+
+            buf_h = (double * ) malloc(4*_N*sizeof(double));
+        };
+
+        // TODO: build destructor to safely free arrays
+
+        __host__ void copyToHost() {
+            // TODO: add checks
+            cudaMemcpy(buf_d, buf_h, 4*_N*sizeof(double),
+                       cudaMemcpyDeviceToHost);
+
+          _p = -1;
+        }
+
+        __host__ __device__ int N() { return _N;}
+
+        double generate1() {
+            _p++;
+            if (_p < 4*_N) return buf_h[_p];
+
+            // TODO: figure out what should happen here?
+            return -1.;
+        }
+
     private:
-        int buf_len;
-        int buf_ptr;
+        int _N;
+        int _p;
+        int * buf_ptr;
+        unsigned long ulseed;
 
         // NOTE: random numbers are buffered on device!
         double * buf_d;
-
-        __device__ __host__ void fill_buff(){
-            buf_d = __generateRandomsGPU_onD<double>(buf_len);
-        };
+        double * buf_h;
 };
+
+
+
+// Entry point
+__global__ void generateOnDevice_kernel(ConusUniformGPU * ud_device) {
+    ud_device->fill_buf_d();
+}
+
+void generateOnDevice(ConusUniformGPU * ud_device) {
+    unsigned threads_per_block = THREADS_PER_BLOCK;
+    // assert(ud.N()%THREADS_PER_BLOCK == 0);
+    unsigned blocks_per_grid   = ud_device->N() / threads_per_block;
+
+    generateOnDevice_kernel<<<blocks_per_grid, threads_per_block>>>(ud_device);
+}
+
+ConusUniformGPU * sendToDevice(ConusUniformGPU * ud_host) {
+    ConusUniformGPU * ud_device;
+
+    // TODO: add checks
+    cudaMalloc(& ud_device, sizeof(ConusUniformGPU));
+    cudaMemcpy(ud_device, ud_host, sizeof(ConusUniformGPU),
+               cudaMemcpyHostToDevice);
+
+    return ud_device;
+}

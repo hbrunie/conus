@@ -15,7 +15,7 @@ void ConusUniformCPU::fill_buff() {
                 generateRandomsCPU<double>(buf_len)
             );
 
-    buf_ptr = 0;
+    buf_ptr = -1;
 }
 
 
