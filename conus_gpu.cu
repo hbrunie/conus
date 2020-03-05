@@ -159,7 +159,7 @@ __host__ void ConusUniformGPU::initialize() {
 
 __host__ void ConusUniformGPU::copyToHost() {
     // TODO: add checks
-    cudaMemcpy(buf_d, buf_h, 4*_N*sizeof(double),
+    cudaMemcpy(buf_h, buf_d, 4*_N*sizeof(double),
                cudaMemcpyDeviceToHost);
 
   _p = -1;

@@ -28,7 +28,7 @@ int main(int argc, char ** argv) {
 
     std::cout << "Here are some random numbers: " << std::endl
               << "I \t CPU \t\t GPU" << std::endl;
-    for (int i=0; i<10; i++)
+    for (int i=0; i<100; i++)
         std::cout << i 
                   << "\t" << ud_cpu()
                   << "\t" << ud_host()
