@@ -29,4 +29,4 @@ clean:
 	rm -f *.o
 
 cleanall: clean
-	rm -f *.ex
+	rm -f *.ex *.o
