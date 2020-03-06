@@ -88,20 +88,23 @@ __device__ void ConusUniformGPU::fill_buf_d()
 {
     unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
     buf_ptr[tid] = 0;
-    typedef Threefry4x64 G;
+    // uniform_ct_gpu<double>(ulseed, buf_d);
+    // typedef Threefry4x64 G;
+    union {
+        G::ctr_type c;
+        long4 i;
+    }u;
     int n_cycle = (int)(_N/_nthreads+1) ;
     for (int i_cycle=0; i_cycle<n_cycle; ++i_cycle){
         int idx = 4*tid + i_cycle*_nthreads;
-            // Don't advance the RNG if not going to use result
-            if (idx + 3 < 4*_N) {
+        // Don't advance the RNG if not going to use result
+        if (idx + 3 < 4*_N) {
             G rng;
             G::key_type k = {{tid, ulseed}};
             G::ctr_type c = {{}};
+            // Grab previous chunck's output state
+            if (i_cycle > 0 ) c = buf_state[tid - (i_cycle-1)*_nthreads];
 
-            union {
-                G::ctr_type c;
-                long4 i;
-            }u;
             c.incr();
             u.c = rng(c, k);
 
@@ -109,6 +112,8 @@ __device__ void ConusUniformGPU::fill_buf_d()
             buf_d[idx+1] = ((double)((uint64_t)u.i.y))/((double)ULONG_MAX);
             buf_d[idx+2] = ((double)((uint64_t)u.i.z))/((double)ULONG_MAX);
             buf_d[idx+3] = ((double)((uint64_t)u.i.w))/((double)ULONG_MAX);
+
+            buf_state[tid+i_cycle*_nthreads] = c;
         }
     }
 }
@@ -117,9 +122,12 @@ __host__ void ConusUniformGPU::initialize()
 {
     // TODO: this shouldn't go into the constructor, but we should add
     // a call-guard to prevent repreated calls
-    size_t rn_size  = 4*_N * sizeof(double);
-    size_t ptr_size = _N * sizeof(int);
+    size_t rn_size     = 4*_N * sizeof(double);
+    size_t state_size  = _N * sizeof(G::ctr_type);
+    size_t ptr_size    = _N * sizeof(int);
+
     CHECKCALL(cudaMalloc(& buf_d, rn_size));
+    CHECKCALL(cudaMalloc(& buf_state, state_size ));
     CHECKCALL(cudaMalloc(& buf_ptr, ptr_size));
     buf_h = (double * ) malloc(4*_N*sizeof(double));
 };

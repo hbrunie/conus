@@ -9,6 +9,12 @@ typedef long unsigned uint64_t;
 #define THREADS_PER_BLOCK 32
 
 
+typedef r123::Threefry4x64 G;
+union {
+    G::ctr_type c;
+    long4 i;
+}u;
+
 
 void deleteRandomsGPU(double * arr);
 
@@ -57,6 +63,9 @@ class ConusUniformGPU {
 
         // NOTE: random numbers are buffered on device!
         double * buf_d;
+        // Keep track on integer state (for repeated use):
+        G::ctr_type * buf_state;
+        // For testing purposes: random number buffer on host
         double * buf_h;
 };
 
