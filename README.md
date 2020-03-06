@@ -1,9 +1,9 @@
 Before any push: 
-``
+```bash
 make cleanall 
 make
 ./testAll.sh #(on Cori gpu)
-``
+```
 
 TODO: CPU code parallel + compare new perf + test case with generation on GPU and memCpy DeviceToHost.
 
