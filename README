@@ -1,0 +1,4 @@
+Run profile on CORI:
+module load cuda
+srun nsys profile ./test_gpu_nvtx.ex BUFSIZE
+--> open it with nsight-sys (on NoMachine for example)
