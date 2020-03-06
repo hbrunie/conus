@@ -15,11 +15,19 @@ make
 ```
 
 ## TODO
+
 1. [ ] clean up code
 2. [ ] compare new perf + test case with generation on GPU and memCpy
        DeviceToHost.
     1. [ ] debug `n_streams` < `buf_size`
 
+### Next steps:
+
+Work with josh to include conus into batoid
+1. [ ] Figure out how to reproduce the virtual function mechanism cf:
+       https://gist.github.com/jmeyers314/986ac7670b356eed32f2fecf2b55aa18
+2. [ ] Make the result not depend on number of threads: i.e. work out
+       a “unique” ID for each photon
 
 ## Profiling using NSIGHT:
 
