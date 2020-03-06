@@ -8,10 +8,6 @@ void conusInit(){
     progname = "Prog using Conus";
 }
 
-void conusFinalize()
-{
-}
-
 unsigned long getULseed()
 {
     unsigned long seed = 0xdeadbeef12345678;

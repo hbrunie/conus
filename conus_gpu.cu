@@ -11,64 +11,6 @@
 using namespace r123;
 using namespace std;
 
-
-__global__ void
-uniform_ct_gpu(unsigned long ulseed,
-               double* arr) {
-
-    unsigned tid = blockDim.x * blockIdx.x + threadIdx.x;
-    typedef Threefry4x64 G;
-    G rng;
-    G::key_type k = {{tid, ulseed}};
-    G::ctr_type c = {{}};
-
-    union {
-        G::ctr_type c;
-        long4 i;
-    }u;
-    c.incr();
-    u.c = rng(c, k);
-
-    arr[4*tid]   = ((double)((uint64_t)u.i.x))/((double)ULONG_MAX);
-    arr[4*tid+1] = ((double)((uint64_t)u.i.y))/((double)ULONG_MAX);
-    arr[4*tid+2] = ((double)((uint64_t)u.i.z))/((double)ULONG_MAX);
-    arr[4*tid+3] = ((double)((uint64_t)u.i.w))/((double)ULONG_MAX);
-}
-
-extern unsigned long getULseed();
-
-double *
-__generateRandomsGPU_onD(unsigned long N)
-{
-    assert(N%4 ==0);
-    unsigned long ulseed = getULseed();
-    double * randomNumbers_d;
-    size_t rn_size = N * sizeof(double);
-
-    CHECKCALL(cudaMalloc(& randomNumbers_d, rn_size));
-
-    unsigned threads_per_block = THREADS_PER_BLOCK;
-    assert(N%THREADS_PER_BLOCK == 0);
-    unsigned blocks_per_grid   = N / threads_per_block;
-
-    uniform_ct_gpu<<<blocks_per_grid, threads_per_block>>>(
-        ulseed, randomNumbers_d);
-    return randomNumbers_d;
-}
-
-double *
-generateRandomsGPUd(unsigned long N)
-{
-    double * randomNumbers_d, * randomNumbers_h;
-    randomNumbers_h = (double *) malloc(N*sizeof(double));
-    randomNumbers_d = __generateRandomsGPU_onD(N);
-    CHECKCALL(cudaMemcpy(randomNumbers_h, randomNumbers_d,
-                N * sizeof(double),
-                cudaMemcpyDeviceToHost));
-    CHECKCALL(cudaFree(randomNumbers_d));
-    return randomNumbers_h;
-}
-
 void deleteRandomsGPU(double * arr)
 {
     CHECKCALL(cudaFree(arr));
