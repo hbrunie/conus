@@ -27,24 +27,30 @@ int main(int argc, char ** argv) {
     nvtxRangePushA("ud_cpu constructor");
     ConusUniformCPU ud_cpu(seed, buff_size);
     nvtxRangePop();
+
     nvtxRangePushA("ud_cpu generate1");
     ud_cpu.generate1(); // cf note 1 below
     nvtxRangePop();
+
     nvtxRangePushA("ud_host constructor");
     ConusUniformGPU ud_host(seed, n_threads, buff_size);
     nvtxRangePop();
+
     // cuda mallocs (and "plain" mallocs) all the internal arrays
     nvtxRangePushA("ud_host initialize");
     ud_host.initialize();
     nvtxRangePop();
+
     // now ud_dev points to a dev copy
     nvtxRangePushA("ud_dec sendToDevice(Host)");
     ConusUniformGPU * ud_dev = sendToDevice(& ud_host);
     nvtxRangePop();
+
     // now its internal `buf_d` is filled with random numbers
     nvtxRangePushA("Generate On Device");
     generateOnDevice(& ud_host, ud_dev);
     nvtxRangePop();
+
     //copies the buf_d to buf_h array on the host <-- my design should hold in theory
     nvtxRangePushA("copyToHost");
     ud_host.copyToHost();
