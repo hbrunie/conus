@@ -1,7 +1,7 @@
 #include <Random123/philox.h>
 
 #include "conus.hpp"
-#include "conus_random.hpp"
+#include "conus_cpu.hpp"
 
 ConusUniformCPU::ConusUniformCPU(long lseed, int N):
     galsim::BaseDeviate(lseed), buf_len(N), buf_ptr(N) {}
