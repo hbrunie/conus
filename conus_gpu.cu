@@ -126,21 +126,31 @@ __device__ void ConusUniformGPU::fill_buf_d() {
     // uniform_ct_gpu<double>(ulseed, buf_d);
 
     typedef Threefry4x64 G;
-    G rng;
-    G::key_type k = {{tid, ulseed}};
-    G::ctr_type c = {{}};
 
-    union {
-        G::ctr_type c;
-        long4 i;
-    }u;
-    c.incr();
-    u.c = rng(c, k);
+    int n_cycle = (int)(_N/_nthreads+1) ;
 
-    buf_d[4*tid]   = ((double)((uint64_t)u.i.x))/((double)ULONG_MAX);
-    buf_d[4*tid+1] = ((double)((uint64_t)u.i.y))/((double)ULONG_MAX);
-    buf_d[4*tid+2] = ((double)((uint64_t)u.i.z))/((double)ULONG_MAX);
-    buf_d[4*tid+3] = ((double)((uint64_t)u.i.w))/((double)ULONG_MAX);
+    for (int i_cycle=0; i_cycle<n_cycle; ++i_cycle){
+
+        int idx = 4*tid + i_cycle*_nthreads;
+            // Don't advance the RNG if not going to use result
+            if (idx + 3 < 4*_N) {
+            G rng;
+            G::key_type k = {{tid, ulseed}};
+            G::ctr_type c = {{}};
+
+            union {
+                G::ctr_type c;
+                long4 i;
+            }u;
+            c.incr();
+            u.c = rng(c, k);
+
+            buf_d[idx]   = ((double)((uint64_t)u.i.x))/((double)ULONG_MAX);
+            buf_d[idx+1] = ((double)((uint64_t)u.i.y))/((double)ULONG_MAX);
+            buf_d[idx+2] = ((double)((uint64_t)u.i.z))/((double)ULONG_MAX);
+            buf_d[idx+3] = ((double)((uint64_t)u.i.w))/((double)ULONG_MAX);
+        }
+    }
 }
 
 __host__ void ConusUniformGPU::initialize() {

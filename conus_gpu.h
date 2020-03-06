@@ -27,8 +27,8 @@ class ConusUniformGPU {
 
         // __host__ __device__ ConusUniformGPU(long lseed, int N):
         //    galsim::BaseDeviate(lseed), ulseed(lseed), _N(N), _p(0) {}
-        __host__ __device__ ConusUniformGPU(long lseed, int N):
-            ulseed(lseed), _N(N), _p(0) {}
+        __host__ __device__ ConusUniformGPU(long lseed, int nthreads, int N):
+            ulseed(lseed), _nthreads(nthreads), _N(N), _p(0) {}
 
 
         // TODO: will need to figure out what to do with the generate1 VF
@@ -51,6 +51,7 @@ class ConusUniformGPU {
     private:
         int _N;
         int _p;
+        int _nthreads;
         int * buf_ptr;
         unsigned long ulseed;
 

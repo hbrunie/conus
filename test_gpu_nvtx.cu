@@ -21,6 +21,9 @@ int main(int argc, char ** argv) {
     long seed = 0;
     long buff_size = atol(argv[1]);
 
+    // TODO: this is a hack: we should try varying this
+    long n_threads = buff_size;
+
     nvtxRangePushA("ud_cpu constructor");
     ConusUniformCPU ud_cpu(seed, buff_size);
     nvtxRangePop();
@@ -28,7 +31,7 @@ int main(int argc, char ** argv) {
     ud_cpu.generate1();
     nvtxRangePop();
     nvtxRangePushA("ud_host constructor");
-    ConusUniformGPU ud_host(seed, buff_size);
+    ConusUniformGPU ud_host(seed, n_threads, buff_size);
     nvtxRangePop();
     // cuda mallocs (and "plain" mallocs) all the internal arrays
     nvtxRangePushA("ud_host initialize");
