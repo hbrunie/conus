@@ -28,7 +28,7 @@ int main(int argc, char ** argv) {
     ConusUniformCPU ud_cpu(seed, buff_size);
     nvtxRangePop();
     nvtxRangePushA("ud_cpu generate1");
-    ud_cpu.generate1();
+    ud_cpu.generate1(); // cf note 1 below
     nvtxRangePop();
     nvtxRangePushA("ud_host constructor");
     ConusUniformGPU ud_host(seed, n_threads, buff_size);
@@ -49,6 +49,10 @@ int main(int argc, char ** argv) {
     nvtxRangePushA("copyToHost");
     ud_host.copyToHost();
     nvtxRangePop();
+
+    // [note 1]  calling `ud_cpu.generate1()` shifts the CPU stream by 1 wrt to
+    // the GPU stream => increment the gpu stream here:
+    ud_host();
 
     std::cout << "Here are some random numbers: " << std::endl
               << "I \t CPU \t\t GPU" << std::endl;
