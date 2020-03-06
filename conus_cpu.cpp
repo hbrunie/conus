@@ -14,10 +14,9 @@ typedef struct int4cpu{
 }long4cpu;
 
 // Initializes the RNG on device and generates 4 random int64_t
-template<typename T>
 void uniform_ct_cpu(
             int n, unsigned long ulseed,
-            T * arr
+            double * arr
         ) {
     assert(n%4 == 0);
     int ndiv4 = n /4;
@@ -34,42 +33,29 @@ void uniform_ct_cpu(
         c.incr();
         u.c = rng(c, k);
 
-        arr[4*n_rng] = u.i.x;
-        arr[4*n_rng+1] = u.i.y;
-        arr[4*n_rng+2] = u.i.z;
-        arr[4*n_rng+3] = u.i.w;
+        arr[4*n_rng] = ((double) ((uint64_t) u.i.x)) / ULONG_MAX;
+        arr[4*n_rng+1] = ((double) ((uint64_t) u.i.y)) / ULONG_MAX;
+        arr[4*n_rng+2] = ((double) ((uint64_t) u.i.z)) / ULONG_MAX;
+        arr[4*n_rng+3] = ((double) ((uint64_t) u.i.w)) / ULONG_MAX;
     }
 
 }
 
-template<typename T>
-T * generateRandomsCPU(unsigned long N){
-    T * randomNumbers = (T*) malloc(sizeof(T)*N);;
+double * generateRandomsCPU(unsigned long N){
+    double * randomNumbers = (double*) malloc(sizeof(double)*N);;
     unsigned long ulseed = getULseed();
-
-    uniform_ct_cpu<T>(N, ulseed, randomNumbers);
-    //cerr << " N " << N << endl;
-    //cerr << " size " << size << endl;
-    if (std::is_same<T, int64_t>::value){
-        return randomNumbers;
-    }else{
-        for(unsigned i=0; i<N; i++){
-            randomNumbers[i] =
-                ((T) ((uint64_t) randomNumbers[i])) / ULONG_MAX;
-        }
-    }
+    uniform_ct_cpu(N, ulseed, randomNumbers);
     return randomNumbers;
 }
 
 ConusUniformCPU::ConusUniformCPU(long lseed, int N):
     galsim::BaseDeviate(lseed), buf_len(N), buf_ptr(N) {}
-// NOTE: initialize buf_ptr to N so that we're calling fill_buff
+// NOdoubleE: initialize buf_ptr to N so that we're calling fill_buff
 // on the first time generate1() is called
 
 void ConusUniformCPU::fill_buff()
 {
-    buf = std::unique_ptr<double>(
-                generateRandomsCPU<double>(buf_len));
+    buf = std::unique_ptr<double>(generateRandomsCPU(buf_len));
     buf_ptr = -1;
 }
 
