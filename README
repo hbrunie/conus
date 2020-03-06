@@ -1,4 +1,6 @@
-Run profile on CORI:
-module load cuda
-srun nsys profile ./test_gpu_nvtx.ex BUFSIZE
---> open it with nsight-sys (on NoMachine for example)
+Before any push: 
+make cleanall 
+make
+sh testAll.sh (on Cori gpu)
+
+TODO: CPU code parallel + compare new perf + test case with generation on GPU and memCpy DeviceToHost.
