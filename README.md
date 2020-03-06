@@ -16,10 +16,12 @@ make
 
 ## TODO
 
-1. [ ] clean up code
-2. [ ] compare new perf + test case with generation on GPU and memCpy
+1. [ ] Clean up code (use Batoid style)
+    1. [ ] Add cmake
+    2. [ ] Test with LLVM
+2. [ ] Compare new perf + test case with generation on GPU and memCpy
        DeviceToHost.
-    1. [ ] debug `n_streams` < `buf_size`
+    1. [ ] Debug `n_streams` < `buf_size`
 
 ### Next steps:
 
