@@ -5,7 +5,6 @@
 #include <Random123/threefry.h>
 #include <Random123/ReinterpretCtr.hpp>
 
-
 typedef long int64_t;
 // Generate N random numbers (double or single)
 // Either on GPU or CPU using random123 library
