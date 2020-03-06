@@ -8,14 +8,17 @@ void conusInit(){
     progname = "Prog using Conus";
 }
 
-void conusFinalize(){
+void conusFinalize()
+{
 }
 
-unsigned long getULseed(){
+unsigned long getULseed()
+{
     unsigned long seed = 0xdeadbeef12345678;
     return 0;
 }
 
-void deleteRandomsCPU(double * arr){
+void deleteRandomsCPU(double * arr)
+{
     free(arr);
 }

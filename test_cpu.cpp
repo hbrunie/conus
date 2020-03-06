@@ -10,8 +10,8 @@
 
 using namespace galsim;
 
-int main(int argc, char ** argv) {
-
+int main(int argc, char ** argv)
+{
     long seed = 0;
     long buff_size = 1024;
     // UniformDeviate ud(seed);

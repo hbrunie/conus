@@ -14,10 +14,8 @@ typedef struct int4cpu{
 }long4cpu;
 
 // Initializes the RNG on device and generates 4 random int64_t
-void uniform_ct_cpu(
-            int n, unsigned long ulseed,
-            double * arr
-        ) {
+void uniform_ct_cpu(int n, unsigned long ulseed,double * arr)
+{
     assert(n%4 == 0);
     int ndiv4 = n /4;
     for (unsigned n_rng = 0; n_rng < ndiv4; n_rng++) {
@@ -38,10 +36,10 @@ void uniform_ct_cpu(
         arr[4*n_rng+2] = ((double) ((uint64_t) u.i.z)) / ULONG_MAX;
         arr[4*n_rng+3] = ((double) ((uint64_t) u.i.w)) / ULONG_MAX;
     }
-
 }
 
-double * generateRandomsCPU(unsigned long N){
+double * generateRandomsCPU(unsigned long N)
+{
     double * randomNumbers = (double*) malloc(sizeof(double)*N);;
     unsigned long ulseed = getULseed();
     uniform_ct_cpu(N, ulseed, randomNumbers);
