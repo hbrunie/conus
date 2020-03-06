@@ -2,7 +2,7 @@
 
 
 #include "conus.hpp"
-#include "conus_random.hpp"
+#include "conus_cpu.hpp"
 #include "conus_gpu.h"
 
 
@@ -16,7 +16,6 @@ int main(int argc, char ** argv) {
     long n_threads = 1024;
 
     ConusUniformCPU ud_cpu(seed, buff_size);
-    
     ConusUniformGPU ud_host(seed, n_threads, buff_size);
     // cuda mallocs (and "plain" mallocs) all the internal arrays
     ud_host.initialize();

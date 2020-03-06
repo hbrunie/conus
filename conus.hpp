@@ -27,18 +27,4 @@ void conusInit();
 void conusFinalize();
 unsigned long getULseed();
 void deleteRandomsCPU(double * arr);
-
-
-#include "conus_impl.hpp"
-
-//void
-//conusInit();
-//
-//void
-//conusFinalize();
-//void
-//deleteRandomsCPU(double *);
-//void
-//deleteRandomsGPU(double *);
-
 #endif
