@@ -1,5 +1,7 @@
 #include <Random123/philox.h>
 
+#include <omp.h>
+
 #include "conus.hpp"
 #include "conus_cpu.hpp"
 
@@ -18,6 +20,7 @@ void uniform_ct_cpu(int n, unsigned long ulseed,double * arr)
 {
     assert(n%4 == 0);
     int ndiv4 = n /4;
+#pragma omp parallel for
     for (unsigned n_rng = 0; n_rng < ndiv4; n_rng++) {
         typedef Threefry4x64 G;
         G rng;

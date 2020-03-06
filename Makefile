@@ -4,17 +4,17 @@ CXXSTD:=-std=c++11
 NVCXX=nvcc
 CXX=g++
 
-CXXFLAGS=$(CXXSTD) -g
+CXXFLAGS=$(CXXSTD) -g -Xcompiler -fopenmp
 INCLUDE=-I include -I.
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $(INCLUDE) -o $@ $<
+	$(NVCXX) $(CXXFLAGS) -c $(INCLUDE) -o $@ $<
 
 %.o: %.cu
 	$(NVCXX) $(CXXFLAGS) -c $(INCLUDE) -o $@ $<
 
 test_cpu.ex: Random.o conus.o conus_cpu.o test_cpu.o
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(NVCXX) $(CXXFLAGS) -o $@ $^
 
 test_gpu.ex: Random.o conus.o conus_cpu.o test_gpu.o conus_gpu.o
 	$(NVCXX) $(CXXFLAGS) -o $@ $^
