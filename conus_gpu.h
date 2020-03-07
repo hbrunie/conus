@@ -1,27 +1,17 @@
 #ifndef __CONUS_GPU_H
 #define __CONUS_GPU_H
 
-
 #include <Random123/threefry.h>
 #include <Random123/ReinterpretCtr.hpp>
 
-typedef long unsigned uint64_t;
+#include "conus.h"
+
 #define THREADS_PER_BLOCK 32
 
-
-typedef r123::Threefry4x64 G;
 union {
     G::ctr_type c;
     long4 i;
 }u;
-
-
-void deleteRandomsGPU(double * arr);
-
-double * generateRandomsGPUd(unsigned long N);
-
-int64_t * generateRandomsGPUi(unsigned long N);
-
 
 #include "Random.h"
 

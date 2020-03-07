@@ -13,16 +13,16 @@ INCLUDE=-I include -I.
 %.o: %.cu
 	$(NVCXX) $(CXXFLAGS) -c $(INCLUDE) -o $@ $<
 
-test_cpu.ex: Random.o conus.o conus_cpu.o test_cpu.o
+test_cpu.ex: Random.o conus_cpu.o test_cpu.o conus.o
 	$(NVCXX) $(CXXFLAGS) -o $@ $^
 
-test_gpu.ex: Random.o conus.o conus_cpu.o test_gpu.o conus_gpu.o
+test_gpu.ex: Random.o conus_cpu.o test_gpu.o conus_gpu.o conus.o
 	$(NVCXX) $(CXXFLAGS) -o $@ $^
 
-profile_gpu.ex: Random.o conus.o conus_cpu.o profile_gpu.o conus_gpu.o
+profile_gpu.ex: Random.o conus_cpu.o profile_gpu.o conus_gpu.o conus.o
 	$(NVCXX) $(CXXFLAGS) -o $@ $^
 
-test_gpu_nvtx.ex: Random.o conus.o conus_cpu.o test_gpu_nvtx.o conus_gpu.o
+test_gpu_nvtx.ex: Random.o conus_cpu.o test_gpu_nvtx.o conus_gpu.o conus.o
 	$(NVCXX) $(CXXFLAGS) -o $@ $^ -lnvToolsExt
 
 clean:

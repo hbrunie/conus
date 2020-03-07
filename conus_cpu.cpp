@@ -1,28 +1,20 @@
-#include <Random123/philox.h>
+#include <Random123/threefry.h>
+#include <climits>
 
 #include <omp.h>
 
-#include "conus.hpp"
 #include "conus_cpu.hpp"
+#include "conus.h"
 
 using namespace r123;
 using namespace std;
 
-typedef struct int4cpu{
-    long x;
-    long y;
-    long z;
-    long w;
-}long4cpu;
-
 // Initializes the RNG on device and generates 4 random int64_t
-void uniform_ct_cpu(int n, unsigned long ulseed,double * arr)
+void ConusUniformCPU::fill_buff()
 {
-    assert(n%4 == 0);
-    int ndiv4 = n /4;
+    int ndiv4 = buf_len /4;
 #pragma omp parallel for
     for (unsigned n_rng = 0; n_rng < ndiv4; n_rng++) {
-        typedef Threefry4x64 G;
         G rng;
         G::key_type k = {{n_rng, ulseed}};
         G::ctr_type c = {{}};
@@ -34,38 +26,31 @@ void uniform_ct_cpu(int n, unsigned long ulseed,double * arr)
         c.incr();
         u.c = rng(c, k);
 
-        arr[4*n_rng] = ((double) ((uint64_t) u.i.x)) / ULONG_MAX;
-        arr[4*n_rng+1] = ((double) ((uint64_t) u.i.y)) / ULONG_MAX;
-        arr[4*n_rng+2] = ((double) ((uint64_t) u.i.z)) / ULONG_MAX;
-        arr[4*n_rng+3] = ((double) ((uint64_t) u.i.w)) / ULONG_MAX;
+        rn_array[4*n_rng] = ((double) ((uint64_t) u.i.x)) / ULONG_MAX;
+        rn_array[4*n_rng+1] = ((double) ((uint64_t) u.i.y)) / ULONG_MAX;
+        rn_array[4*n_rng+2] = ((double) ((uint64_t) u.i.z)) / ULONG_MAX;
+        rn_array[4*n_rng+3] = ((double) ((uint64_t) u.i.w)) / ULONG_MAX;
     }
+    //_p = -1;
 }
 
-double * generateRandomsCPU(unsigned long N)
-{
-    double * randomNumbers = (double*) malloc(sizeof(double)*N);;
-    unsigned long ulseed = getULseed();
-    uniform_ct_cpu(N, ulseed, randomNumbers);
-    return randomNumbers;
-}
-
+//TODO: reuse lseed from BaseDeviate instead of having own private var?
 ConusUniformCPU::ConusUniformCPU(long lseed, int N):
-    galsim::BaseDeviate(lseed), buf_len(N), buf_ptr(N) {}
-// NOdoubleE: initialize buf_ptr to N so that we're calling fill_buff
-// on the first time generate1() is called
-
-void ConusUniformCPU::fill_buff()
+    galsim::BaseDeviate(lseed), buf_len(N), _p(0), ulseed(lseed)
 {
-    buf = std::unique_ptr<double>(generateRandomsCPU(buf_len));
-    buf_ptr = -1;
+    cerr << "CPU seed: " << lseed << endl;
+    // Because Random123 generates 4 by 4
+    assert(N%4 ==0);
+    rn_array = (double*)malloc(sizeof(double)*N);
+    fill_buff();
 }
 
-double ConusUniformCPU::generate1()
+double ConusUniformCPU::get1()
 {
-    buf_ptr++;
-    if (buf_ptr < buf_len) return buf.get()[buf_ptr];
-    fill_buff();
-    // Need to try again after buffer has been filled
-    // (I know this pattern is unsafe)
-    return generate1();
+    if (_p >= buf_len){
+        //erase old content:TODO change the seed!
+        fill_buff();
+        _p = 0;
+    }
+    return rn_array[_p++];
 }

@@ -2,7 +2,6 @@
 #include <iomanip>
 #include <iostream>
 
-#include "conus.hpp"
 #include "conus_cpu.hpp"
 
 // #include "Random.h"
@@ -20,5 +19,5 @@ int main(int argc, char ** argv)
     ConusUniformCPU ud(seed, buff_size);
     std::cout << "Here are some random numbers: " << std::endl;
     for (int i=0; i<100; i++)
-        std::cout << ud() << std::endl;
+        std::cout << ud.get1() << std::endl;
 }

@@ -1,13 +1,9 @@
 #include <iostream>
 
-
-#include "conus.hpp"
 #include "conus_cpu.hpp"
 #include "conus_gpu.h"
 
-
 using namespace r123;
-
 
 int main(int argc, char ** argv) {
 

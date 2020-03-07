@@ -1,13 +1,9 @@
 #include <iostream>
 
-
-#include "conus.hpp"
 #include "conus_cpu.hpp"
 #include "conus_gpu.h"
 
-
 using namespace r123;
-
 
 int main(int argc, char ** argv) {
 
@@ -15,7 +11,7 @@ int main(int argc, char ** argv) {
     long buff_size = 1024;
 
     ConusUniformCPU ud_cpu(seed, buff_size);
-    
+
     ConusUniformGPU ud_host(seed, buff_size, buff_size);
     // cuda mallocs (and "plain" mallocs) all the internal arrays
     ud_host.initialize();
@@ -29,8 +25,8 @@ int main(int argc, char ** argv) {
     std::cout << "Here are some random numbers: " << std::endl
               << "I \t CPU \t\t GPU" << std::endl;
     for (int i=0; i<100; i++)
-        std::cout << i 
-                  << "\t" << ud_cpu()
+        std::cout << i
+                  << "\t" << ud_cpu.get1()
                   << "\t" << ud_host()
                   << std::endl;
 }
