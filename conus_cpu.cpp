@@ -45,7 +45,7 @@ ConusUniformCPU::ConusUniformCPU(long lseed, int N):
     fill_buff();
 }
 
-double ConusUniformCPU::get1()
+double ConusUniformCPU::operator()()
 {
     if (_p >= buf_len){
         //erase old content:TODO change the seed!

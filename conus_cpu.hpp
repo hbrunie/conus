@@ -14,7 +14,7 @@ class ConusUniformCPU : public galsim::BaseDeviate {
     public:
         ConusUniformCPU(long lseed, int N);
         ~ConusUniformCPU(){free(rn_array);};
-        double get1();
+        double operator()();
 
     private:
         int buf_len;

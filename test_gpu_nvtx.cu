@@ -25,7 +25,7 @@ int main(int argc, char ** argv) {
     nvtxRangePop();
 
     nvtxRangePushA("ud_cpu generate1");
-    ud_cpu.get1(); // cf note 1 below
+    ud_cpu(); // cf note 1 below
     nvtxRangePop();
 
     nvtxRangePushA("ud_host constructor");
@@ -60,7 +60,7 @@ int main(int argc, char ** argv) {
               << "I \t CPU \t\t GPU" << std::endl;
     for (int i=0; i<10; i++)
         std::cout << i
-                  << "\t" << ud_cpu.get1()
+                  << "\t" << ud_cpu()
                   << "\t" << ud_host()
                   << std::endl;
 

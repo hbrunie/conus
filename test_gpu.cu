@@ -26,7 +26,7 @@ int main(int argc, char ** argv) {
               << "I \t CPU \t\t GPU" << std::endl;
     for (int i=0; i<100; i++)
         std::cout << i
-                  << "\t" << ud_cpu.get1()
+                  << "\t" << ud_cpu()
                   << "\t" << ud_host()
                   << std::endl;
 }
