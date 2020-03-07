@@ -22,6 +22,9 @@ make
 2. [ ] Compare new perf + test case with generation on GPU and memCpy
        DeviceToHost.
     1. [ ] Debug `n_streams` < `buf_size`
+3. [ ] Pass GalSim random tests: GalSim/tests/test\_random.py
+    1. [ ] make a shared lib of Conus (pybind)
+    2. [ ] call conus from python tests.
 
 ### Next steps:
 
