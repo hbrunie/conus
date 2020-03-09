@@ -3,3 +3,6 @@
 
 # Compiled executables
 *.ex
+
+# Vim swap files
+*.swp
